@@ -13,16 +13,8 @@ class Password(
     }
 
     fun isValid(): Boolean {
-        var occurrences = 0
-        for (c in passwordString) {
-            if (c == requiredCharacter) {
-                occurrences++
-                if (occurrences > maxOccurrences) {
-                    return false
-                }
-            }
-        }
-        if (occurrences < minOccurrences) {
+        var occurrences = passwordString.count { it == requiredCharacter }
+        if (occurrences < minOccurrences || occurrences > maxOccurrences) {
             return false
         }
 
@@ -51,12 +43,7 @@ fun String.toPassword(): Password {
 fun solvePuzzle1(input: List<String>) {
     val passwords = input.map { it.toPassword() }
 
-    var numberOfValidPasswords = 0
-    for (password in passwords) {
-        if (password.isValid()) {
-            numberOfValidPasswords++
-        }
-    }
+    var numberOfValidPasswords = passwords.count { it.isValid() }
 
     println(numberOfValidPasswords)
 }
@@ -64,12 +51,7 @@ fun solvePuzzle1(input: List<String>) {
 fun solvePuzzle2(input: List<String>) {
     val passwords = input.map { it.toPassword() }
 
-    var numberOfValidPasswords = 0
-    for (password in passwords) {
-        if (password.isTobogganCorpValid()) {
-            numberOfValidPasswords++
-        }
-    }
+    var numberOfValidPasswords = passwords.count { it.isTobogganCorpValid() }
 
     println(numberOfValidPasswords)
 }
