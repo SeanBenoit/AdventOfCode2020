@@ -90,39 +90,57 @@ fun convertToGapList(adapters: List<Int>): List<Int> {
     return gapList
 }
 
-fun countChunkConfigurations(gapList: List<Int>): Int {
+fun combineTwoElements(list: List<Int>, i: Int): List<Int> {
+    var newList = list.toMutableList()
+    newList.removeAt(i)
+    newList[i] += list[i]
+    return newList
+}
+
+/* I hate that this has side-effects on gapListsSeen but it makes countTotalValidConfigurations
+ * cleaner and it's late atm.
+ */
+fun countChunkConfigurations(
+        gapList: List<Int>,
+        knownGapLists: HashMap<List<Int>, Long>,
+        gapListsSeen: HashSet<List<Int>>
+): Long {
+    // Don't double-count gapLists we've constructed in this subtree of the recursion
+    if (gapListsSeen.contains(gapList)) return 0L
     // base cases: the list has one or two elements
-    if (gapList.size == 1) return 1
-    if (gapList.size == 2) {
-        // if the two elements total less than three, we can choose to combine them or not
-        if (gapList.sum() <= 3) return 2
-        // otherwise, we can't combine them
-        return 1
+    if (gapList.size == 1) {
+        gapListsSeen.add(gapList)
+        return 1L
     }
+    // "base case": we've seen the gapList before
+    if (knownGapLists.containsKey(gapList)) return knownGapLists.getValue(gapList)
 
-    var count = 1
+    /* Facts:
+     * We haven't seen this gapList before
+     * The gapList contains at least 2 elements
+     */
+    var count = 1L
 
-    for (i in 1 until gapList.size) {
-        if (gapList[i - 1] + gapList[i] <= 3) {
-
+    for (i in 0 until gapList.size - 1) {
+        val lastTwoElementsSum = gapList[i] + gapList[i + 1]
+        if (lastTwoElementsSum <= 3) {
+            val reducedList = combineTwoElements(gapList, i)
+            count += countChunkConfigurations(reducedList, knownGapLists, gapListsSeen)
         }
     }
+
+    gapListsSeen.add(gapList)
+    knownGapLists[gapList] = count
 
     return count
 }
 
-fun countTotalValidConfigurations(gapLists: List<List<Int>>): Int {
-    var count = 1
+fun countTotalValidConfigurations(gapLists: List<List<Int>>): Long {
+    var count = 1L
 
-    val gapListsSeen = hashMapOf<List<Int>, Int>()
+    val knownGapLists = hashMapOf<List<Int>, Long>()
     for (gapList in gapLists) {
-        if (gapListsSeen.containsKey(gapList)) {
-            count *= gapListsSeen.getValue(gapList)
-            continue
-        }
-        val numberOfValidConfigurations = countChunkConfigurations(gapList)
-        gapListsSeen[gapList] = numberOfValidConfigurations
-        count *= numberOfValidConfigurations
+        count *= countChunkConfigurations(gapList, knownGapLists, hashSetOf())
     }
 
     return count
@@ -140,5 +158,5 @@ fun solvePuzzle2(input: List<String>) {
     // Any chunk with less than 2 gaps (i.e. less than 3 adapters) has only 1 valid configuration
     // so it doesn't matter.
     val gapLists = adapterChunks.map { convertToGapList(it) }.filter { it.size > 1 }
-    println(gapLists)
+    println(countTotalValidConfigurations(gapLists))
 }
