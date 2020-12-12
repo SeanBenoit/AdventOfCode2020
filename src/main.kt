@@ -1,7 +1,7 @@
 import java.io.File
 
 fun main() {
-    val input = File("src/day11/input").readLines()
-    day11.solvePuzzle1(input)
-    day11.solvePuzzle2(input)
+    val input = File("src/day12/input").readLines()
+    day12.solvePuzzle1(input)
+    day12.solvePuzzle2(input)
 }
