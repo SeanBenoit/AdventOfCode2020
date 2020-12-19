@@ -3,7 +3,7 @@ package day18
 import day18.Expression.Type.*
 
 class Expression(var parent: Expression? = null) {
-    var value: Int? = null
+    var value: Long? = null
     var leftChild: Expression? = null
     var rightChild: Expression? = null
     var type = NONE
@@ -16,7 +16,7 @@ class Expression(var parent: Expression? = null) {
         ;
     }
 
-    fun evaluate(): Int {
+    fun evaluate(): Long {
         println("$this $type $value $leftChild $rightChild")
         return when (type) {
             NONE -> {
@@ -118,7 +118,7 @@ fun parseExpression(tokens: List<String>): Expression {
             }
             else -> {
                 currentExpression.type = NUMBER
-                currentExpression.value = tokens[i].toInt()
+                currentExpression.value = tokens[i].toLong()
                 if (i == tokens.lastIndex) break
                 while (currentExpression.type != NONE) {
                     if (currentExpression.parent == null) {
